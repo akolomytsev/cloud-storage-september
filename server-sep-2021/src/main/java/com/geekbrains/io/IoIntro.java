@@ -43,8 +43,9 @@ public class IoIntro {
         System.out.println(intro.readAsString("hello.txt"));
         intro.createServerDir("root");
         intro.transfer(
-                new File("/Users/mikelevin/IdeaProjects/gb/backend/test/cloud-storage-sep-2021/server-sep-2021/src/main/resources/com/geekbrains/io/hello.txt"),
+                new File("/C:/java/cloud-storage-september/server-sep-2021/src/main/resources/com/geekbrains/io/hello.txt"),
                 new File(ROOT_DIR + "copy.txt")
         );
     }
 }
+
