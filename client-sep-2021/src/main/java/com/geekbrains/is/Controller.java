@@ -3,7 +3,10 @@ package com.geekbrains.is;
 import java.io.*;
 import java.net.Socket;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -14,7 +17,9 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class Controller implements Initializable {
-    public ListView<String> listView;
+    private static String ROOT_DIR_1 = "client-sep-2021/src/main/resources/com/geekbrains/is";
+    private static String ROOT_DIR_2 = "server-sep-2021/src/main/resources/com/geekbrains/io";
+    public ListView<String> listView1;
     public TextField input;
     private DataInputStream is;
     private DataOutputStream os;
@@ -32,31 +37,32 @@ public class Controller implements Initializable {
             os.writeUTF("Нет такой команды");
         }
         input.clear();
-        //os.writeUTF(String.valueOf(msg));// не понадобилось, может и зря
-        //os.flush();
+ //       os.writeUTF(msg);// не понадобилось, может и зря
+        os.flush();
     }
 
     private void exitProgram(String s) throws IOException {
         os.writeUTF("exit");
         os.flush();
     }
-
     //
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
+            FillFilesInCurrentDir();
             socket = new Socket("localhost", 8189);
             is = new DataInputStream(socket.getInputStream());
             os = new DataOutputStream(socket.getOutputStream());
+
             Thread daemon = new Thread(() -> {
                 try {
                     while (true) {
-                        String command = is.readUTF();
-                        log.debug("received: {}", command);
-                        Platform.runLater(() -> listView.getItems().add(command));
-                        if ("upload".equals(command)) {  // пришла такая команда
+                        String msg = is.readUTF();
+                        log.debug("received: {}", msg);
+ //                       Platform.runLater(() -> listView1.getItems().add(msg));
+                        if ("upload".equals(msg)) {  // пришла такая команда
                             try {
-                                File file = new File("server-sep-2021/src/main/resources/com/geekbrains/io" + File.separator + is.readUTF());  // читаем наименование
+                                File file = new File(ROOT_DIR_2 + File.separator + is.readUTF());  // читаем наименование
                                 if (!file.exists()) {  // проверяем есть ли такой файл
                                     file.createNewFile();
                                 }
@@ -67,15 +73,15 @@ public class Controller implements Initializable {
                                     int read = is.read(buffer); // считываем в буфер
                                     fos.write(buffer, 0, read);  // из буфера в файлик
                                 }
-                                fos.close(); // передаем статус
+                                //fos.close(); // передаем статус
                                 //os.writeUTF("OK");
                             } catch (Exception e) {
                                 os.writeUTF("FATAL ERROR");
                             }
                         }
-                        if ("download".equals(command)) { // реализовать загрузку с сервера,
+                        if ("download".equals(msg)) { // реализовать загрузку с сервера,
                             try {
-                                File file = new File("client-sep-2021/src/main/resources/com/geekbrains/is" + File.separator + is.readUTF());  // читаем наименование
+                                File file = new File(ROOT_DIR_1 + File.separator + is.readUTF());  // читаем наименование
                                 if (!file.exists()) {  // проверяем есть ли такой файл
                                     file.createNewFile();
                                 }
@@ -88,13 +94,13 @@ public class Controller implements Initializable {
                                     int read = is.read(buffer); // считываем в буфер
                                     fos.write(buffer, 0, read);  // из буфера в файлик
                                 }
-                                fos.close(); // передаем статус
+                                //fos.close(); // передаем статус
                                // os.writeUTF("OK");
                             } catch (Exception e) {
                                 os.writeUTF("FATAL ERROR");
                             }
                         }
-                        if ("exit".equals(command)) { // если набрать это сообщение то выходишь из программы
+                        if ("exit".equals(msg)) { // если набрать это сообщение то выходишь из программы
                             System.out.printf("Client %s disconnected correctly\n", socket.getInetAddress()); //  сообщение в консоль
                             break; // выход
                         }
@@ -108,6 +114,24 @@ public class Controller implements Initializable {
         } catch (IOException ioException) {
             log.error("e=", ioException);
         }
+    }
+//метод для вывода содержимого папки в listView по конкретному пути
+    private void FillFilesInCurrentDir() throws IOException{
+        listView1.getItems().clear();// изначально чистим (на всякий случай)
+        listView1.getItems().addAll(
+                Files.list(Paths.get(ROOT_DIR_1))
+                        .map(p -> p.getFileName().toString())
+                        .collect(Collectors.toList())
+
+        );
+        // При двойном нажатии на enter имя папки передается в TextField input
+        listView1.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2){
+                String item = listView1.getSelectionModel().getSelectedItem();
+                input.setText(item);
+            }
+        });
+
     }
 
     private void sendFile(String filename) {

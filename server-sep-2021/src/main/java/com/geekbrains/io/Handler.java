@@ -26,7 +26,7 @@ public class Handler implements Runnable {
         ) {
             while (true) {
                 String command = is.readUTF();
-   //             log.debug("Received: {}", command);
+                log.debug("Received: {}", command);
                 os.writeUTF(command);
                 os.flush();
             }
