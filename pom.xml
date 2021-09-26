@@ -11,6 +11,7 @@
     <modules>
         <module>server-sep-2021</module>
         <module>client-sep-2021</module>
+        <module>core-sep-2021</module>
     </modules>
 
     <properties>

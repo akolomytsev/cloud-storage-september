@@ -9,20 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>server-sep-2021</artifactId>
-    <dependencies>
-        <dependency>
-            <groupId>com.geekbrains</groupId>
-            <artifactId>core-sep-2021</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <version>4.1.65.Final</version>
-        </dependency>
-    </dependencies>
+    <artifactId>core-sep-2021</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
