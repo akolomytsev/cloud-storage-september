@@ -99,7 +99,7 @@ public class Server {
        } else if ("cat".equals(arr[0]))
             sendMessage(textOutput(arr[1], serverRoot).concat("\n\r"), selector, client);
 
-        //channel.write(ByteBuffer.wrap(("[" + LocalDateTime.now() + "] " + message).getBytes(StandardCharsets.UTF_8)));
+        channel.write(ByteBuffer.wrap(("[" + LocalDateTime.now() + "] " + message).getBytes(StandardCharsets.UTF_8)));
     }
 
 
